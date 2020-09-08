@@ -18,7 +18,7 @@ scc_between <- function(dat1,dat2){
   rownames(out) <- colnames(dat1)
   colnames(out) <- paste(rep(colnames(dat2),rep(3,ncol(dat2))),rep(c("rho","pvalue","FDR"),ncol(dat2)))
   for(i in 1:ncol(dat2)){
-    print(i)
+    #print(i)
     x <- as.numeric(dat2[,i])
     for(j in 1:ncol(dat1)){
       y <- as.numeric(dat1[,j])
