@@ -130,3 +130,61 @@ pcc_self <- function(dat,dat_adj){
   }
   return(out)
 }
+
+
+#' Customized mediation analysis
+#'
+#' Customized mediation analysis.
+#' fit1: m ~ x + adj
+#' fit2: y ~ x + m + adj
+#'
+#' @param data   input data
+#' @param x      x
+#' @param y      y
+#' @param m      mediation variable
+#' @param adj    adjust variable
+#'
+#' @return dataframe
+#'
+#' @export
+mediation_analysis <- function(data,x,y,m,adj){
+  #print(c(x,y,m))
+  data <- na.omit(data)
+  f1 <- as.formula(paste0(m,"~",x,"+",paste(adj,collapse = "+")))
+  f2 <- as.formula(paste0(y,"~",x,"+",m,"+",paste(adj,collapse = "+")))
+  fit1 <- glm(f1,data=data)
+  fit2 <- glm(f2,data=data)
+  fit3 <- mediation::mediate(fit1,fit2,treat = x,mediator = m)
+  med.out <- fit3
+  lines <- summary(med.out) %>%
+    capture.output() %>%
+    discard(`==`,"")
+  i <- which(grepl("^ ", lines))
+  res <- lines[i:(i+4)] %>%
+    sub("^       ", "med.out", .) %>%
+    gsub("95% CI Lower", "CI_95%_Lower", .) %>%
+    gsub("95% CI Upper", "CI_95%_Upper", .) %>%
+    sub(" \\(", "_(", .) %>%
+    sub("p-", "p_", .) %>%
+    sub("\\*+","",.) %>%
+    sub("<","",.) %>%
+    sub("\\. *$","",.) %>%
+    sub(" ", "_", ., fixed=TRUE)  %>%
+    textConnection() %>%
+    read.table(header=TRUE) %>%
+    setNames(sub("_$", "", colnames(.))) %>%
+    dplyr::mutate(med.out=sub("\\.|_$", "", med.out),
+                  med.out=gsub("_", " ", med.out))
+  out <- data.frame(
+    X = x,Y = y, mediator = m,
+    ACME.estimate = res$Estimate[1],
+    ACME.p = res$p_value[1],
+    ADE.estimate = res$Estimate[2],
+    ADE.p = res$p_value[2],
+    Total.estimate = res$Estimate[3],
+    Total.p = res$p_value[3],
+    Prop.mediate = res$Estimate[4],
+    Prop.p = res$p_value[4]
+  )
+  return(out)
+}
