@@ -1,21 +1,20 @@
 
 #' KW test
-#' 
+#'
 #' This function perform Kruskal-Walis test among multiple gorups
-#' 
+#'
 #' @param dat , input data
 #' @param grp , input groups with one column
-#' 
+#'
 #' @return dataframe
-#' 
+#'
 #' @export
-#' @example 
 
 KW_phenotypes <- function(dat,grp){
   inte <- intersect(rownames(dat),rownames(grp))
   dat <- dat[inte,]
   grp <- grp[inte,,drop=F]
-  
+
   #variables
   num <- ncol(dat)
   fr <- grp[, 1]
@@ -48,7 +47,7 @@ KW_phenotypes <- function(dat,grp){
     dtp[upper.tri(dtp)] <- t(dtp)[upper.tri(dtp)]
     rownames(dtp)[1] <- colnames(dtp)[1]
     colnames(dtp)[len] <- rownames(dtp)[len]
-    
+
     mean_rank <- tapply(rank(dat1),fr1,mean)
     res <- c(res,dtp[lower.tri(dtp)], mean_rank)
     #
@@ -71,7 +70,7 @@ KW_phenotypes <- function(dat,grp){
         if(any(p_tmp>0.05)){symbol[x] <- "="}
       }
     }
-    
+
     conclude[(1:(len - 1)) * 2] <- symbol
     tmp <- paste(conclude, collapse = " ")
     #res <- c(res, paste(conclude, collapse = " "))
@@ -95,16 +94,15 @@ KW_phenotypes <- function(dat,grp){
 
 
 #' customized wilcoxon test
-#' 
+#'
 #' This function perform wilcox test between gorups
-#' 
+#'
 #' @param dat , input data
 #' @param grp , input groups with one column
-#' 
+#'
 #' @return dataframe
-#' 
+#'
 #' @export
-#' @example 
 
 wilcox.customized <- function(dat,grp,type="phenotype"){
   grp <- na.omit(grp)
@@ -124,10 +122,10 @@ wilcox.customized <- function(dat,grp,type="phenotype"){
   out <- as.data.frame(out)
   colnames(out) <- out.cn
   rownames(out) <- colnames(dat)
-  
+
   out$pvalue <- apply(dat,2,function(x) wilcox.test(x~grp[,1])$p.value)
   out$FDR <- p.adjust(out$pvalue,method = "BH")
-  
+
   for(i in 1:nrow(out)){
     out[i,3:4] <- tapply(dat[,i],grp[,1],function(y) median(y,na.rm = T))
     out[i,5:6] <- tapply(dat[,i],grp[,1],function(y) mean(y,na.rm = T))
@@ -140,5 +138,52 @@ wilcox.customized <- function(dat,grp,type="phenotype"){
   }
   out$Enrichment.Direction <- ifelse(out[,9]>out[,10],grp.level[1],grp.level[2])
   out$Enrichment.Direction[out$FDR>0.05 | is.na(out$FDR)] <- "NONE"
+  return(out)
+}
+
+
+#' customized paired wilcoxon-rank sum test
+#'
+#' The function to perform paired wilcoxon-rank sum test between gorups
+#'
+#' @param dat     input data
+#' @param grp     groups with two column, "paired" for patient ID and "group" for treatment groups
+#' @param paired  which column used as patiend ID
+#' @param group   which column used as treatment groups
+#'
+#' @return dataframe
+#'
+#' @export
+wilcox.Paired <- function(dat,grp,paired,group){
+  grp <- na.omit(grp)
+  inte <- intersect(rownames(dat),rownames(grp))
+  grp <- grp[inte,,drop=F]
+  dat <- dat[inte,,drop=F]
+
+  out.cn <- paste(rep(c("median","mean","SD","mean_rank","N"),rep(2,5)),
+                  rep(levels(factor(grp[,group])),5),sep = ".")
+  out.cn <- c("pvalue","FDR",out.cn,"Enrichment.Direction")
+  out <- matrix(NA,ncol(dat),length(out.cn))
+  out <- as.data.frame(out)
+  colnames(out) <- out.cn
+  rownames(out) <- colnames(dat)
+
+  for(i in 1:nrow(out)){
+    tmp <- cbind(dat[,i,drop=F],grp)
+    tmp2 <- tmp %>% spread(get(group),get(colnames(dat)[i]))
+    tmp2 <- na.omit(tmp2)
+    out[i,1] <- wilcox.test(tmp2[,2],tmp2[,3],paired = T)$p.value
+    out[i,3:4] <- c(median(tmp2[,2],na.rm = T),median(tmp2[,3],na.rm=T))
+    out[i,5:6] <- c(mean(tmp2[,2],na.rm = T),mean(tmp2[,3],na.rm=T))
+    out[i,7:8] <- c(sd(tmp2[,2],na.rm = T),sd(tmp2[,3],na.rm=T))
+    rk <- rank(c(tmp2[,2],tmp2[,3]))
+    out[i,9:10] <- c(mean(rk[1:nrow(tmp2)]),mean(rk[(nrow(tmp2)+1):(nrow(tmp2)*2)]))
+    out[i,11:12] <- c(sum(tmp2[,2]>0),sum(tmp2[,3]>0))
+  }
+  out$FDR <- p.adjust(out$pvalue,method = "BH")
+
+  l <- levels(factor(grp[,group]))
+  out$Enrichment.Direction <- ifelse(out[,9]>out[,10],l[1],l[2])
+  out$Enrichment.Direction[out$FDR>=0.05 | is.na(out$FDR)] <- "NONE"
   return(out)
 }
