@@ -8,7 +8,6 @@
 #' @return dataframe
 #'
 #' @export
-#' @example
 
 scc_between <- function(dat1,dat2){
   inte <- intersect(rownames(dat1),rownames(dat2))
@@ -42,7 +41,6 @@ scc_between <- function(dat1,dat2){
 #' @return dataframe
 #'
 #' @export
-#' @example
 pcc_between <- function(dat1,dat2,dat_adj){
   inte <- intersect(rownames(dat1),rownames(dat2))
   dat1 <- dat1[inte,,drop=F]
@@ -76,7 +74,6 @@ pcc_between <- function(dat1,dat2,dat_adj){
 #' @return dataframe
 #'
 #' @export
-#' @example
 scc_self <- function(dat){
   out <- as.data.frame(matrix(NA,ncol(dat),ncol(dat)*3))
   rownames(out) <- colnames(dat)
@@ -105,7 +102,6 @@ scc_self <- function(dat){
 #' @return dataframe
 #'
 #' @export
-#' @example
 pcc_self <- function(dat,dat_adj){
   dat_adj <- dat_adj[rownames(dat),,drop=F]
   out <- as.data.frame(matrix(NA,ncol(dat),ncol(dat)*3))

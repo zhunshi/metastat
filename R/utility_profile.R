@@ -63,3 +63,27 @@ FilterMetaphlan2Profile <- function(pro,include=c("k__Bacteria","k__Archaea"),re
   }
   pro
 }
+
+#' Standarize species name in  metaphlan2 profile
+#'
+#' A function to standarize species names in metaphlan2 profile
+#'
+#' @param x           vector of species name
+#' @param italic      if use italic face
+#'
+#' @return value      vector of standarized species name
+#'
+#' @export
+standarizeSpeciesName <- function(x){
+  x <- gsub("s__","",x)
+  x <- gsub("_"," ",x)
+  a <- x
+  b <- gsub("(\\d) (\\d)","\\1_\\2",a)
+  while(!all(a==b)){
+    a <- b
+    b <- gsub("(\\d) (\\d)","\\1_\\2",a)
+  }
+  return(b)
+}
+
+
