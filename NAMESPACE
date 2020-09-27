@@ -3,6 +3,7 @@
 export(CombineTidyTables)
 export(FilterMetaphlan2Profile)
 export(KW_phenotypes)
+export(ReAdjustBHMaaslin2)
 export(SplitMetaphlan2Profile)
 export(mediation_analysis)
 export(pcc_between)
