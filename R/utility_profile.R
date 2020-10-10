@@ -100,7 +100,7 @@ standarizeSpeciesName <- function(x){
 #' @export
 Barplot_Pathway2Species <- function(dat,group,pathwayID){
   # Extract data for given pathwayID
-  dat <- dat[grep(pathwayID,rownames(dat)),]
+  dat <- dat[grep(paste0(pathwayID,":"),rownames(dat)),]
   FullName = rownames(dat)[1]
   dat <- dat[grep("\\|",rownames(dat)),]
 
