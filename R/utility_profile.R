@@ -106,26 +106,30 @@ Barplot_Pathway2Species <- function(dat,group,pathwayID){
 
   # Rename contributors (species level)
   rownames(dat) <- gsub(".*s__","",rownames(dat))
-  rownames(dat) <- gsub("_"," ",rownames(dat))
+  rownames(dat)[grep("\\|unclassified",rownames(dat))] <- "Unclassified"
+  rownames(dat) <- standarizeSpeciesName(rownames(dat))
+  dat2 <- dat[rownames(dat) != "Unclassified",,drop=F]
 
   # order features
   b <- data.frame(
-    Max = apply(dat,1,mean)
+    Max = apply(dat2,1,mean)
   ) %>%
     rownames_to_column(var="Species") %>%
     arrange(desc(Max))
-  order_feature <- b$Species[1:7]
-  if(nrow(b)>7){
+  n <- ifelse(nrow(b)>6,6,nrow(b))
+  order_feature <- b$Species[1:n]
+  if(nrow(b)>6){
     dat <- dat %>%
       rownames_to_column(var="Species") %>%
       mutate(
-        Species = replace(Species, !Species %in% order_feature, "Other")
+        Species = replace(Species, !Species %in% c(order_feature,"Unclassified"), "Other")
       ) %>%
       group_by(Species)  %>%
       summarise_all(sum) %>%
       column_to_rownames(var="Species")
     order_feature <- c(order_feature, "Other")
   }
+  order_feature <- c(order_feature, "Unclassified")
 
   # order samples
   a <- data.frame(Sum = colSums(dat))
@@ -149,8 +153,8 @@ Barplot_Pathway2Species <- function(dat,group,pathwayID){
   # barplot
   Colors <- c("#000080","#0029FF","#00D5FF","#7DFF7A","#FFE600","#FF4700","#800000","#808080")
   p1 <- ggplot(dat2,aes(Samples,Abundance,fill=Species))+
-    geom_bar(stat = "identity",color="black")+
-    scale_y_continuous(expand = expand_scale(mult = c(0,0.1)))+
+    geom_bar(stat = "identity")+
+    scale_y_continuous(expand = expansion(mult = c(0,0.1)))+
     scale_fill_manual(values = Colors)+
     xlab("") + ylab("Relative abundance")+
     labs(title = FullName)+
