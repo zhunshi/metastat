@@ -87,3 +87,99 @@ standarizeSpeciesName <- function(x){
 }
 
 
+#' Barplot for humann2 profile
+#'
+#' A function to implement barplot in humann2
+#'
+#' @param dat        full combined profile
+#' @param group      group information with one column
+#' @param pathwayID  pathway ID
+#'
+#' @return value      vector of standarized species name
+#'
+#' @export
+Barplot_Pathway2Species <- function(dat,group,pathwayID){
+  # Extract data for given pathwayID
+  dat <- dat[grep(pathwayID,rownames(dat)),]
+  FullName = rownames(dat)[1]
+  dat <- dat[grep("\\|",rownames(dat)),]
+
+  # Rename contributors (species level)
+  rownames(dat) <- gsub(".*s__","",rownames(dat))
+  rownames(dat) <- gsub("_"," ",rownames(dat))
+
+  # order features
+  b <- data.frame(
+    Max = apply(dat,1,mean)
+  ) %>%
+    rownames_to_column(var="Species") %>%
+    arrange(desc(Max))
+  order_feature <- b$Species[1:7]
+  if(nrow(b)>7){
+    dat <- dat %>%
+      rownames_to_column(var="Species") %>%
+      mutate(
+        Species = replace(Species, !Species %in% order_feature, "Other")
+      ) %>%
+      group_by(Species)  %>%
+      summarise_all(sum) %>%
+      column_to_rownames(var="Species")
+    order_feature <- c(order_feature, "Other")
+  }
+
+  # order samples
+  a <- data.frame(Sum = colSums(dat))
+  group <- group[rownames(a),,drop=F]
+  a <- cbind(a,group) %>% rownames_to_column(var="SampleID")
+  a <- a[order(a$Sum,decreasing = T),]
+  a <- a[order(a$Group),]
+  order_sampels <- as.character(a$SampleID)
+  a$y = ""
+  a$SampleID <- factor(a$SampleID,levels = order_sampels)
+
+  # Dataframe transform
+  dat2 <- dat %>%
+    rownames_to_column(var="Species") %>%
+    gather(Samples,Abundance,-Species) %>%
+    mutate(
+      Species = factor(Species,levels = order_feature),
+      Samples = factor(Samples,levels = order_sampels)
+    )
+
+  # barplot
+  Colors <- c("#000080","#0029FF","#00D5FF","#7DFF7A","#FFE600","#FF4700","#800000","#808080")
+  p1 <- ggplot(dat2,aes(Samples,Abundance,fill=Species))+
+    geom_bar(stat = "identity",color="black")+
+    scale_y_continuous(expand = expand_scale(mult = c(0,0.1)))+
+    scale_fill_manual(values = Colors)+
+    xlab("") + ylab("Relative abundance")+
+    labs(title = FullName)+
+    theme_bw()+
+    theme(
+      axis.title = element_text(size = 14,color = "black"),
+      axis.text = element_text(size = 13,color = "black"),
+      axis.text.x = element_blank(),
+      axis.ticks = element_blank(),
+      legend.title = element_text(size = 14,color = "black"),
+      legend.text = element_text(size = 13,color = "black",face = "italic"),
+      panel.grid = element_blank(),
+      plot.title = element_text(size = 14,color = "black",hjust = 0.5)
+    )
+
+  p2 <- ggplot(a,aes(SampleID,y,fill=Group))+
+    geom_tile()+
+    xlab("Samples")+ylab("")+
+    scale_y_discrete(expand = c(0,0))+
+    theme_bw()+
+    theme(
+      axis.title = element_text(size = 14,color = "black"),
+      axis.text = element_text(size = 13,color = "black"),
+      axis.text.x = element_blank(),
+      axis.ticks = element_blank(),
+      legend.title = element_text(size = 14,color = "black"),
+      legend.text = element_text(size = 13,color = "black"),
+      panel.grid = element_blank()
+    )
+
+  ggarrange(p1,p2,nrow = 2,ncol = 1,align = "v",heights = c(5,1),legend = "right")
+}
