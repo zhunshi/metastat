@@ -40,7 +40,7 @@ KW_phenotypes <- function(dat,grp){
     res <- c(ktp[i],
              tapply(dat1, fr1, median),
              tapply(dat1,fr1,mean),
-             tapply(!is.na(dat[,i][!index1]), fr[!index1],mean))
+             tapply(!is.na(dat[,i][!index1]), fr[!index1],sum))
     dtp <- PMCMRplus::kwAllPairsDunnTest(dat1, fr1, p.adjust.method = "BH")$p.value
     dtp <- cbind(dtp, rep(NA, len - 1))
     dtp <- rbind(rep(NA, len), dtp)
