@@ -4,20 +4,13 @@
 #' @param ReAdjPvalLowerTri if re-adjust pvalue (lower tri)
 #' @param FilterRow FilterRow
 #' @param FilterCol FilterCol
-#' @param cellheight cellheight
-#' @param cellwidth cellwidth
-#' @param fontsize fontsize
-#' @param fontsize_number fontsize_number
-#' @param cluster_rows cluster_rows
-#' @param cluster_cols cluster_cols
 #' @param ... other parameters passed to pheatmap
 #'
 #' @return
 #' @export
 #'
 #' @examples
-mypheatmap <- function(scc,ReAdjPvalLowerTri=FALSE,FilterRow=F,FilterCol=F,cellheight = 15,cellwidth = 20,
-                    fontsize = 10,fontsize_number=10,cluster_rows = T,cluster_cols = T,...){
+mypheatmap <- function(scc,ReAdjPvalLowerTri=FALSE,FilterRow=F,FilterCol=F,...){
   n <- ncol(scc)/3
   id <- (1:n)*3
   scc.c <- scc[,id-2,drop=F]

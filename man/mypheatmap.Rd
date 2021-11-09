@@ -4,19 +4,7 @@
 \alias{mypheatmap}
 \title{customize pheatmap}
 \usage{
-mypheatmap(
-  scc,
-  ReAdjPvalLowerTri = FALSE,
-  FilterRow = F,
-  FilterCol = F,
-  cellheight = 15,
-  cellwidth = 20,
-  fontsize = 10,
-  fontsize_number = 10,
-  cluster_rows = T,
-  cluster_cols = T,
-  ...
-)
+mypheatmap(scc, ReAdjPvalLowerTri = FALSE, FilterRow = F, FilterCol = F, ...)
 }
 \arguments{
 \item{scc}{output of scc_self, scc_between, pcc_self, pcc_between}
@@ -26,18 +14,6 @@ mypheatmap(
 \item{FilterRow}{FilterRow}
 
 \item{FilterCol}{FilterCol}
-
-\item{cellheight}{cellheight}
-
-\item{cellwidth}{cellwidth}
-
-\item{fontsize}{fontsize}
-
-\item{fontsize_number}{fontsize_number}
-
-\item{cluster_rows}{cluster_rows}
-
-\item{cluster_cols}{cluster_cols}
 
 \item{...}{other parameters passed to pheatmap}
 }
