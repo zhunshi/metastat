@@ -4,7 +4,15 @@
 \alias{PCbiplot}
 \title{Title}
 \usage{
-PCbiplot(PC, x = "PC1", y = "PC2", Group = NULL, main = NULL)
+PCbiplot(
+  PC,
+  x = "PC1",
+  y = "PC2",
+  Group = NULL,
+  main = NULL,
+  point_size = 3,
+  point_alpha = 1
+)
 }
 \arguments{
 \item{PC}{output of prcomp function}
@@ -16,6 +24,10 @@ PCbiplot(PC, x = "PC1", y = "PC2", Group = NULL, main = NULL)
 \item{Group}{dataframe with one column to group}
 
 \item{main}{main title}
+
+\item{point_size}{size of point}
+
+\item{point_alpha}{alpha of point}
 }
 \value{
 

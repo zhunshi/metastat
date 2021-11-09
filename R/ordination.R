@@ -40,13 +40,14 @@ PCbiplot <- function(PC, x="PC1", y="PC2",Group=NULL,main=NULL,point_size=3,poin
   eig1 <- paste("PC1(",round(eig1*100,2),"%)",sep = "")
   eig2 <- paste("PC2(",round(eig2*100,2),"%)",sep = "")
   # plot
-  p <- ggplot(data, aes_string(x=x, y=y))
   if(!is.null(Group)){
     colnames(Group) <- "Group"
     Group <- Group[data$obsnames,,drop=F]
     data <- cbind(data,Group)
+    p <- ggplot(data, aes_string(x=x, y=y))
     p <- p + geom_point(aes(color=Group),size=point_size,alpha=point_alpha)
   }else{
+    p <- ggplot(data, aes_string(x=x, y=y))
     p <- p + geom_point(size=point_size,alpha=point_alpha)
   }
   p <- p +
