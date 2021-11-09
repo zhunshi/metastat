@@ -5,12 +5,14 @@
 #' @param y PC2 to display
 #' @param Group dataframe with one column to group
 #' @param main main title
+#' @param point_size size of point
+#' @param point_alpha alpha of point
 #'
 #' @return
 #' @export
 #'
 #' @examples
-PCbiplot <- function(PC, x="PC1", y="PC2",Group=NULL,main=NULL) {
+PCbiplot <- function(PC, x="PC1", y="PC2",Group=NULL,main=NULL,point_size=3,point_alpha=1) {
   # points
   data <- data.frame(obsnames=row.names(PC$x), PC$x)
   # labels
@@ -43,9 +45,9 @@ PCbiplot <- function(PC, x="PC1", y="PC2",Group=NULL,main=NULL) {
     colnames(Group) <- "Group"
     Group <- Group[data$obsnames,,drop=F]
     data <- cbind(data,Group)
-    p <- p + geom_point(aes(color=Group))
+    p <- p + geom_point(aes(color=Group),size=point_size,alpha=point_alpha)
   }else{
-    p <- p + geom_point()
+    p <- p + geom_point(size=point_size,alpha=point_alpha)
   }
   p <- p +
     ggrepel::geom_text_repel(
