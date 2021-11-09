@@ -4,17 +4,15 @@
 #' @param x PC1 to display
 #' @param y PC2 to display
 #' @param Group dataframe with one column to group
+#' @param main main title
 #'
 #' @return
 #' @export
 #'
 #' @examples
-PCbiplot <- function(PC, x="PC1", y="PC2",Group) {
+PCbiplot <- function(PC, x="PC1", y="PC2",Group=NULL,main=NULL) {
   # points
   data <- data.frame(obsnames=row.names(PC$x), PC$x)
-  colnames(Group) <- "Group"
-  Group <- Group[data$obsnames,,drop=F]
-  data <- cbind(data,Group)
   # labels
   loading <- as.data.frame(PC$rotation[,1:2])
   loading <- abs(loading)
@@ -40,9 +38,16 @@ PCbiplot <- function(PC, x="PC1", y="PC2",Group) {
   eig1 <- paste("PC1(",round(eig1*100,2),"%)",sep = "")
   eig2 <- paste("PC2(",round(eig2*100,2),"%)",sep = "")
   # plot
-  ggplot(data, aes_string(x=x, y=y)) +
-    geom_point(aes(color=Group))+
-    #stat_ellipse(aes(color=Group),type="norm",level=0.9,size=1.2)+
+  p <- ggplot(data, aes_string(x=x, y=y))
+  if(!is.null(Group)){
+    colnames(Group) <- "Group"
+    Group <- Group[data$obsnames,,drop=F]
+    data <- cbind(data,Group)
+    p <- p + geom_point(aes(color=Group))
+  }else{
+    p <- p + geom_point()
+  }
+  p <- p +
     ggrepel::geom_text_repel(
       data=datapc,
       aes(x=v1, y=v2, label=varnames),
@@ -62,7 +67,12 @@ PCbiplot <- function(PC, x="PC1", y="PC2",Group) {
       axis.text = element_text(size = 12,color = "black"),
       panel.grid = element_blank(),
       legend.title = element_text(size = 13,colour = "black"),
-      legend.text = element_text(size = 12,color = "black"))+
+      legend.text = element_text(size = 12,color = "black"),
+      plot.title = element_text(size = 13,color = "black",hjust=0.5))+
     xlab(eig1)+ylab(eig2)
+  if(!is.null(main)){
+    p <- p + labs(title=main)
+  }
+  p
 }
 

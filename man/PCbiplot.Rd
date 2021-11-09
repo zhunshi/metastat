@@ -4,7 +4,7 @@
 \alias{PCbiplot}
 \title{Title}
 \usage{
-PCbiplot(PC, x = "PC1", y = "PC2", Group)
+PCbiplot(PC, x = "PC1", y = "PC2", Group = NULL, main = NULL)
 }
 \arguments{
 \item{PC}{output of prcomp function}
@@ -14,6 +14,8 @@ PCbiplot(PC, x = "PC1", y = "PC2", Group)
 \item{y}{PC2 to display}
 
 \item{Group}{dataframe with one column to group}
+
+\item{main}{main title}
 }
 \value{
 
