@@ -1,5 +1,5 @@
-#' Title
-#'
+#' INT transform
+#' a function to permform INT-transformation
 #' @param x numeric vector. Input
 #'
 #' @return
