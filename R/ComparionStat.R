@@ -109,15 +109,19 @@ wilcox.customized <- function(dat,grp,type="phenotype"){
   inte <- intersect(rownames(dat),rownames(grp))
   dat <- dat[inte,]
   grp <- grp[inte,,drop=F]
+  if(min(dat,na.rm = T)>=0 & max(dat,na.rm = T)<1 & all(apply(dat,2,function(x) class(x)=="numeric"))){
+    type <- "profile"
+  }
+  cat("The input data type is: ",type,"\n")
   grp[,1] <- as.factor(grp[,1])
   grp.level <- levels(grp[,1])
   grp.level.n <- length(grp.level)
   if(grp.level.n!=2){
     stop("Number of Group levels must be 2")
   }
-  out.cn <- paste(rep(c("median","mean","SD","mean_rank","occ_rate"),rep(2,5)),
-                  rep(grp.level,5),sep = ".")
-  out.cn <- c("pvalue","FDR",out.cn,"Enrichment.Direction")
+  out.cn <- paste(rep(c("median","mean","SD","mean_rank","occ_rate","n"),each=2),
+                  rep(grp.level,6),sep = ".")
+  out.cn <- c("pvalue","FDR",out.cn,"Enrichment.FDR")
   out <- matrix(NA,ncol(dat),length(out.cn))
   out <- as.data.frame(out)
   colnames(out) <- out.cn
@@ -135,9 +139,13 @@ wilcox.customized <- function(dat,grp,type="phenotype"){
     out[i,9:10] <- tapply(rank(tmp2),grp[,1][!is.na(tmp)],function(y) mean(y))
     out[i,11:12] <- tapply(dat[,i],grp[,1],
                            function(y) ifelse(type=="phenotype",sum(!is.na(y))/length(y),sum(y>0)/length(y)))
+    out[i,13:14] <- tapply(dat[,i],grp[,1],
+                           function(y) ifelse(type=="phenotype",sum(!is.na(y)),sum(y>0)))
   }
-  out$Enrichment.Direction <- ifelse(out[,9]>out[,10],grp.level[1],grp.level[2])
-  out$Enrichment.Direction[out$FDR>0.05 | is.na(out$FDR)] <- "NONE"
+  out$Enrichment.FDR <- ifelse(out[,9]>out[,10],grp.level[1],grp.level[2])
+  out$Enrichment.pval <- out$Enrichment.FDR
+  out$Enrichment.FDR[out$FDR>0.05 | is.na(out$FDR)] <- "NONE"
+  out$Enrichment.pval[out$pvalue>0.05 | is.na(out$pvalue)] <- "NONE"
   return(out)
 }
 
