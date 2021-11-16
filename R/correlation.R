@@ -198,6 +198,7 @@ mediation_analysis <- function(data,x,y,m,adj){
 #' @examples
 PermanovaMulti <- function(x,distance,...){
   # sample matched
+  distance <- as.matrix(distance)
   inte <- intersect(rownames(x),rownames(distance))
   x <- x[inte,,drop=F]
   distance <- distance[inte,inte,drop=F]
@@ -248,6 +249,7 @@ PermanovaMulti <- function(x,distance,...){
 #'
 #' @examples
 Permanova <- function(dat,d){
+  d <- as.matrix(d)
   d <- d[rownames(dat),rownames(dat)]
   d <- as.dist(d)
   d <- as.matrix(d)
