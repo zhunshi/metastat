@@ -184,3 +184,81 @@ mediation_analysis <- function(data,x,y,m,adj){
   )
   return(out)
 }
+
+
+#' Title
+#'
+#' @param x datafram input
+#' @param distance distance or matrix
+#' @param ... Other parameters passsed to adonis
+#'
+#' @return
+#' @export
+#'
+#' @examples
+PermanovaMulti <- function(x,distance,...){
+  # sample matched
+  inte <- intersect(rownames(x),rownames(distance))
+  x <- x[inte,,drop=F]
+  distance <- distance[inte,inte,drop=F]
+
+  # out file construction
+  out <- matrix(NA,nrow = ncol(x),8)
+  colnames(out) <- c(
+    "SampleNum", "Df", "SumsOfSqs", "MeanSqs", "F.Model", "R2", "pval", "FDR"
+  )
+  rownames(out) <- colnames(x)
+
+  # conduct permanova
+  for(i in 1:ncol(x)){
+    phe <- x[,i]
+    index <- which(!is.na(phe))
+    phe <- phe[index]
+
+    # ouput NAs if the length of data equals 0
+    if (length(index)==0 | length(unique(phe))==1){
+      out[i,] <- NA
+      next
+    }
+
+    # set random seed
+    #set.seed(0)
+    d <- as.dist(distance[index,index,drop=F])
+
+    # adonis
+    d <- as.matrix(d)
+    res <- adonis(d ~ phe,...)
+    out[i,1:7] <- c(length(phe),as.numeric(res$aov.tab[1,]))
+  }
+
+  # p value adjusted (BH)
+  out[,8] <- p.adjust(out[,7],method = "BH")
+
+  # return resutls
+  return(out)
+}
+
+#' Title
+#'
+#' @param dat factors
+#' @param d distance, matrix or dist
+#'
+#' @return
+#' @export
+#'
+#' @examples
+Permanova <- function(dat,d){
+  d <- d[rownames(dat),rownames(dat)]
+  d <- as.dist(d)
+  d <- as.matrix(d)
+  x <- droplevels(factor(dat[,1]))
+  # adonis
+  res <- adonis(d ~ x)
+
+  # out
+  out <- matrix(NA,1,9)
+  rownames(out) <- paste(levels(x),collapse = " vs. ")
+  colnames(out) <- c("N","N1","N2","Df", "SumsOfSqs", "MeanSqs", "F.Model", "R2", "pval")
+  out[1,] <- c(length(x),table(x),as.numeric(res$aov.tab[1,]))
+  out
+}
