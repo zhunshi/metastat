@@ -2,9 +2,10 @@
 % Please edit documentation in R/utility_scatterplot.R
 \name{scatterplot}
 \alias{scatterplot}
-\title{Title}
+\title{scatterplot
+customized scatterplot}
 \usage{
-scatterplot(dat, x, y)
+scatterplot(dat, x, y, group = NULL)
 }
 \arguments{
 \item{dat}{dataframe, input}
@@ -12,10 +13,13 @@ scatterplot(dat, x, y)
 \item{x}{string, lab for x}
 
 \item{y}{string, lab for y}
+
+\item{group}{string, lab for grouping, default NULL}
 }
 \value{
 
 }
 \description{
-Title
+scatterplot
+customized scatterplot
 }
