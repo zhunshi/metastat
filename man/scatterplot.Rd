@@ -5,7 +5,7 @@
 \title{scatterplot
 customized scatterplot}
 \usage{
-scatterplot(dat, x, y, group = NULL)
+scatterplot(dat, x, y, group = NULL, PCC = F, adj = NULL)
 }
 \arguments{
 \item{dat}{dataframe, input}
@@ -15,6 +15,10 @@ scatterplot(dat, x, y, group = NULL)
 \item{y}{string, lab for y}
 
 \item{group}{string, lab for grouping, default NULL}
+
+\item{PCC}{if permform ppcor::pcor.test}
+
+\item{adj}{string, lab for confounder in pcor.test}
 }
 \value{
 
