@@ -7,19 +7,20 @@
 #' @param main main title
 #' @param point_size size of point
 #' @param point_alpha alpha of point
+#' @param n_label number of labels to display in every PCs
 #'
-#' @return
+#' @return ggplot object
 #' @export
 #'
 #' @examples
-PCbiplot <- function(PC, x="PC1", y="PC2",Group=NULL,main=NULL,point_size=3,point_alpha=1) {
+PCbiplot <- function(PC, x="PC1", y="PC2",Group=NULL,main=NULL,point_size=3,point_alpha=1,n_label=5) {
   # points
   data <- data.frame(obsnames=row.names(PC$x), PC$x)
   # labels
   loading <- as.data.frame(PC$rotation[,1:2])
   loading <- abs(loading)
-  dis_name <- rownames(loading)[order(loading$PC1,decreasing = T)][1:5]
-  dis_name2 <- rownames(loading)[order(loading$PC2,decreasing = T)][1:5]
+  dis_name <- rownames(loading)[order(loading$PC1,decreasing = T)][1:n_label]
+  dis_name2 <- rownames(loading)[order(loading$PC2,decreasing = T)][1:n_label]
   dis_name <- union(dis_name,dis_name2)
   loading <- PC$rotation[dis_name,1:2]
   datapc <- data.frame(varnames=rownames(loading), loading)
