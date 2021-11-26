@@ -11,7 +11,8 @@ PCbiplot(
   Group = NULL,
   main = NULL,
   point_size = 3,
-  point_alpha = 1
+  point_alpha = 1,
+  n_label = 5
 )
 }
 \arguments{
@@ -28,9 +29,11 @@ PCbiplot(
 \item{point_size}{size of point}
 
 \item{point_alpha}{alpha of point}
+
+\item{n_label}{number of labels to display in every PCs}
 }
 \value{
-
+ggplot object
 }
 \description{
 Title
