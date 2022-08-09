@@ -141,7 +141,9 @@ wilcox.customized <- function(dat,grp,type="phenotype"){
                            function(y) ifelse(type=="phenotype",sum(!is.na(y))/length(y),sum(y>0)/length(y)))
     out[i,13:14] <- tapply(dat[,i],grp[,1],
                            function(y) ifelse(type=="phenotype",sum(!is.na(y)),sum(y>0)))
-    out[i,16] <- rstatix::wilcox_effsize(dat[,i]~grp[,1])$effsize
+    a <- cbind(dat[,i,drop=F],grp[,1,drop=F])
+    f <- as.formula(paste0(i,"~",colnames(grp)[1]))
+    out[i,16] <- rstatix::wilcox_effsize(formula = f,data=a)$effsize
   }
   out$Enrichment.FDR <- ifelse(out[,9]>out[,10],grp.level[1],grp.level[2])
   out$Enrichment.pval <- out$Enrichment.FDR
