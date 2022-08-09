@@ -121,33 +121,31 @@ wilcox.customized <- function(dat,grp,type="phenotype"){
   }
   out.cn <- paste(rep(c("median","mean","SD","mean_rank","occ_rate","n"),each=2),
                   rep(grp.level,6),sep = ".")
-  out.cn <- c("pvalue","FDR",out.cn,"Enrichment.FDR","Effectsize")
+  out.cn <- c("pvalue","FDR","Enrichment","Effectsize",out.cn)
   out <- matrix(NA,ncol(dat),length(out.cn))
   out <- as.data.frame(out)
   colnames(out) <- out.cn
   rownames(out) <- colnames(dat)
 
-  out$pvalue <- apply(dat,2,function(x) wilcox.test(x~grp[,1])$p.value)
-  out$FDR <- p.adjust(out$pvalue,method = "BH")
-
-  for(i in 1:nrow(out)){
-    out[i,3:4] <- tapply(dat[,i],grp[,1],function(y) median(y,na.rm = T))
-    out[i,5:6] <- tapply(dat[,i],grp[,1],function(y) mean(y,na.rm = T))
-    out[i,7:8] <- tapply(dat[,i],grp[,1],function(y) sd(y,na.rm = T))
+  a <- cbind(dat,grp[,1,drop=F])
+  for(i in rownames(out)){
+    f <- as.formula(paste0(i,"~",colnames(grp)[1]))
+    out[i,1] <- wilcox.test(f,data = a)$p.value
+    out[i,4] <- rstatix::wilcox_effsize(formula = f,data=a)$effsize
+    out[i,5:6] <- tapply(dat[,i],grp[,1],function(y) median(y,na.rm = T))
+    out[i,7:8] <- tapply(dat[,i],grp[,1],function(y) mean(y,na.rm = T))
+    out[i,9:10] <- tapply(dat[,i],grp[,1],function(y) sd(y,na.rm = T))
     tmp <- dat[,i]
     tmp2 <- tmp[!is.na(tmp)]
-    out[i,9:10] <- tapply(rank(tmp2),grp[,1][!is.na(tmp)],function(y) mean(y))
-    out[i,11:12] <- tapply(dat[,i],grp[,1],
-                           function(y) ifelse(type=="phenotype",sum(!is.na(y))/length(y),sum(y>0)/length(y)))
+    out[i,11:12] <- tapply(rank(tmp2),grp[,1][!is.na(tmp)],function(y) mean(y))
     out[i,13:14] <- tapply(dat[,i],grp[,1],
+                           function(y) ifelse(type=="phenotype",sum(!is.na(y))/length(y),sum(y>0)/length(y)))
+    out[i,15:16] <- tapply(dat[,i],grp[,1],
                            function(y) ifelse(type=="phenotype",sum(!is.na(y)),sum(y>0)))
-    a <- cbind(dat[,i,drop=F],grp[,1,drop=F])
-    f <- as.formula(paste0(i,"~",colnames(grp)[1]))
-    out[i,16] <- rstatix::wilcox_effsize(formula = f,data=a)$effsize
   }
-  out$Enrichment.FDR <- ifelse(out[,9]>out[,10],grp.level[1],grp.level[2])
-  out$Enrichment.pval <- out$Enrichment.FDR
-  out$Enrichment.FDR[out$FDR>0.05 | is.na(out$FDR)] <- "NONE"
+  out$Enrichment <- ifelse(out[,11]>out[,12],grp.level[1],grp.level[2])
+  out$Enrichment.pval <- out$Enrichment
+  out$Enrichment[out$FDR>0.05 | is.na(out$FDR)] <- "NONE"
   out$Enrichment.pval[out$pvalue>0.05 | is.na(out$pvalue)] <- "NONE"
   return(out)
 }
