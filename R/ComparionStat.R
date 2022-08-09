@@ -147,6 +147,8 @@ wilcox.customized <- function(dat,grp,type="phenotype"){
   out$Enrichment.pval <- out$Enrichment
   out$Enrichment[out$FDR>0.05 | is.na(out$FDR)] <- "NONE"
   out$Enrichment.pval[out$pvalue>0.05 | is.na(out$pvalue)] <- "NONE"
+  a <- ifelse(out[,11]>out[,12],-1,1)
+  out$Effectsize <- sign(a)*out$Effectsize
   return(out)
 }
 
