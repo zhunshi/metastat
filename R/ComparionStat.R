@@ -121,7 +121,7 @@ wilcox.customized <- function(dat,grp,type="phenotype"){
   }
   out.cn <- paste(rep(c("median","mean","SD","mean_rank","occ_rate","n"),each=2),
                   rep(grp.level,6),sep = ".")
-  out.cn <- c("pvalue","FDR",out.cn,"Enrichment.FDR")
+  out.cn <- c("pvalue","FDR",out.cn,"Enrichment.FDR","Effectsize")
   out <- matrix(NA,ncol(dat),length(out.cn))
   out <- as.data.frame(out)
   colnames(out) <- out.cn
@@ -141,6 +141,7 @@ wilcox.customized <- function(dat,grp,type="phenotype"){
                            function(y) ifelse(type=="phenotype",sum(!is.na(y))/length(y),sum(y>0)/length(y)))
     out[i,13:14] <- tapply(dat[,i],grp[,1],
                            function(y) ifelse(type=="phenotype",sum(!is.na(y)),sum(y>0)))
+    out[i,16] <- rstatix::wilcox_effsize(dat[,i]~grp[,1])$effsize
   }
   out$Enrichment.FDR <- ifelse(out[,9]>out[,10],grp.level[1],grp.level[2])
   out$Enrichment.pval <- out$Enrichment.FDR
