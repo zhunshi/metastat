@@ -143,6 +143,7 @@ wilcox.customized <- function(dat,grp,type="phenotype"){
     out[i,15:16] <- tapply(dat[,i],grp[,1],
                            function(y) ifelse(type=="phenotype",sum(!is.na(y)),sum(y>0)))
   }
+  out$FDR <- p.adjust(out$pvalue,method = "BH")
   out$Enrichment <- ifelse(out[,11]>out[,12],grp.level[1],grp.level[2])
   out$Enrichment.pval <- out$Enrichment
   out$Enrichment[out$FDR>0.05 | is.na(out$FDR)] <- "NONE"
