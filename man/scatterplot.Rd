@@ -5,7 +5,18 @@
 \title{scatterplot
 customized scatterplot}
 \usage{
-scatterplot(dat, x, y, group = NULL, PCC = F, adj = NULL)
+scatterplot(
+  dat,
+  x,
+  y,
+  group = NULL,
+  PCC = F,
+  adj = NULL,
+  size.points = 5,
+  alpha.points = 0.5,
+  size.smooth = 1,
+  size.lab = 3
+)
 }
 \arguments{
 \item{dat}{dataframe, input}

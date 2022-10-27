@@ -12,7 +12,7 @@
 #' @export
 #'
 #' @examples
-scatterplot <- function (dat, x, y, group = NULL,PCC=F,adj=NULL)
+scatterplot <- function (dat, x, y, group = NULL,PCC=F,adj=NULL, size.points=5, alpha.points=0.5,size.smooth=1,size.lab=3)
 {
   dat <- dat[!is.na(dat[, x]), , drop = F]
   s0 <- cor.test(dat[,x],dat[,y],method = "s")
@@ -34,10 +34,10 @@ scatterplot <- function (dat, x, y, group = NULL,PCC=F,adj=NULL)
     lab <- paste0("scc rho = ", round(s0$estimate, 3), "; p = ",
                   formatC(s0$p.value, digits = 2))
     p <- ggplot(dat, aes_string(x, y)) +
-      geom_point(size = 0.8, alpha = 0.5) +
-      geom_smooth(method = "lm", se = F) +
+      geom_point(size = size.points, alpha = alpha.points, ...) +
+      geom_smooth(method = "lm", se = F,size=size.smooth,...) +
       annotate("text", x = -Inf, y = Inf, vjust = 1.2,
-               hjust = 0, label = lab, size = 3) + theme_bw()
+               hjust = 0, label = lab, size = size.lab) + theme_bw()
   }
   else {
     lst_levels <- levels(as.factor(dat[, group]))
@@ -53,10 +53,10 @@ scatterplot <- function (dat, x, y, group = NULL,PCC=F,adj=NULL)
     lab <- paste(lab,collapse = "\n")
     lab <- paste0(paste0("Totol rho = ", round(s0$estimate, 3), "; p = ",formatC(s0$p.value, digits = 2)),"\n",lab)
     p <- ggplot(dat, aes_string(x, y, color = group)) +
-      geom_point(size = 0.8, alpha = 0.5) +
-      geom_smooth(method = "lm",se = F) +
+      geom_point(size = size.points, alpha = alpha.points, ...) +
+      geom_smooth(method = "lm",se = F,size=size.smooth, ...) +
       geom_smooth(data = dat, method = "lm",se = F, aes_string(x, y), color = "black") +
-      annotate("text", x = -Inf, y = Inf, vjust = 1.2, hjust = 0, label = lab,size = 3) +
+      annotate("text", x = -Inf, y = Inf, vjust = 1.2, hjust = 0, label = lab,size = size.lab) +
       theme_bw()
   }
   p
