@@ -190,52 +190,42 @@ mediation_analysis <- function(data,x,y,m,adj){
 #'
 #' @param x datafram input
 #' @param distance distance or matrix
-#' @param ... Other parameters passsed to adonis
+#' @param adjsuted adjusted for confounders
+#' @param ... Other parameters passsed to adonis2
 #'
 #' @return
 #' @export
 #'
 #' @examples
-PermanovaMulti <- function(x,distance,...){
-  # sample matched
+PermanovaMulti <- function (x, distance, adjusted = NULL, ...) {
   distance <- as.matrix(distance)
-  inte <- intersect(rownames(x),rownames(distance))
-  x <- x[inte,,drop=F]
-  distance <- distance[inte,inte,drop=F]
-
-  # out file construction
-  out <- matrix(NA,nrow = ncol(x),8)
-  colnames(out) <- c(
-    "SampleNum", "Df", "SumsOfSqs", "MeanSqs", "F.Model", "R2", "pval", "FDR"
-  )
-  rownames(out) <- colnames(x)
-
-  # conduct permanova
-  for(i in 1:ncol(x)){
-    phe <- x[,i]
-    index <- which(!is.na(phe))
-    phe <- phe[index]
-
-    # ouput NAs if the length of data equals 0
-    if (length(index)==0 | length(unique(phe))==1){
-      out[i,] <- NA
-      next
-    }
-
-    # set random seed
-    #set.seed(0)
-    d <- as.dist(distance[index,index,drop=F])
-
-    # adonis
-    d <- as.matrix(d)
-    res <- adonis(d ~ phe,...)
-    out[i,1:7] <- c(length(phe),as.numeric(res$aov.tab[1,]))
+  inte <- intersect(rownames(x), rownames(distance))
+  x <- x[inte, , drop = F]
+  distance <- distance[inte, inte, drop = F]
+  if (!is.null(adjusted)){
+    dat.adj <- x[,adjusted,drop=F]
+    x <- x[,!colnames(x) %in% adjusted,drop=F]
   }
-
-  # p value adjusted (BH)
-  out[,8] <- p.adjust(out[,7],method = "BH")
-
-  # return resutls
+  out <- matrix(NA, nrow = ncol(x), 7)
+  colnames(out) <- c("SampleNum", "Df", "SumsOfSqs", "R2", "F", "pval", "FDR")
+  rownames(out) <- colnames(x)
+  for (i in 1:ncol(x)) {
+    x1 <- na.omit(x[, i,drop=F])
+    f <- as.formula(paste0("d ~ ",colnames(x)[i]))
+    if(!is.null(adjusted)){
+      x1 <- cbind(x1,dat.adj[rownames(x1),,drop=F])
+      x1 <- na.omit(x1)
+      f <- as.formula(paste0("d ~ ",paste(adjusted,collapse = "+"),"+",colnames(x)[i]))
+    }
+    d <- as.dist(distance[rownames(x1), rownames(x1), drop = F])
+    print(f)
+    res <- adonis2(formula = f,data = x1, permutations = 9, ...)
+    res <- as.data.frame(as.matrix(res))
+    out[i, 1:6] <- c(nrow(x1), as.numeric(res[colnames(x)[i], ]))
+  }
+  out[, 7] <- p.adjust(out[, 6], method = "BH")
+  out <- as.data.frame(out)
+  out$Models <- ifelse(is.null(adjusted),"raw",paste0("raw+",paste(adjusted,collapse = "+")))
   return(out)
 }
 

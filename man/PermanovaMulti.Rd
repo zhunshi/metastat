@@ -4,14 +4,16 @@
 \alias{PermanovaMulti}
 \title{Title}
 \usage{
-PermanovaMulti(x, distance, ...)
+PermanovaMulti(x, distance, adjusted = NULL, ...)
 }
 \arguments{
 \item{x}{datafram input}
 
 \item{distance}{distance or matrix}
 
-\item{...}{Other parameters passsed to adonis}
+\item{...}{Other parameters passsed to adonis2}
+
+\item{adjsuted}{adjusted for confounders}
 }
 \value{
 
