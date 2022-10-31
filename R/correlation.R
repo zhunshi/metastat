@@ -219,7 +219,7 @@ PermanovaMulti <- function (x, distance, adjusted = NULL, ...) {
     }
     d <- as.dist(distance[rownames(x1), rownames(x1), drop = F])
     print(f)
-    res <- adonis2(formula = f,data = x1, permutations = 9, ...)
+    res <- adonis2(formula = f,data = x1, ...)
     res <- as.data.frame(as.matrix(res))
     out[i, 1:6] <- c(nrow(x1), as.numeric(res[colnames(x)[i], ]))
   }
