@@ -34,8 +34,8 @@ scatterplot <- function (dat, x, y, group = NULL,PCC=F,adj=NULL, size.points=5, 
     lab <- paste0("scc rho = ", round(s0$estimate, 3), "; p = ",
                   formatC(s0$p.value, digits = 2))
     p <- ggplot(dat, aes_string(x, y)) +
-      geom_point(size = size.points, alpha = alpha.points, ...) +
-      geom_smooth(method = "lm", se = F,size=size.smooth,...) +
+      geom_point(size = size.points, alpha = alpha.points) +
+      geom_smooth(method = "lm", se = F,size=size.smooth) +
       annotate("text", x = -Inf, y = Inf, vjust = 1.2,
                hjust = 0, label = lab, size = size.lab) + theme_bw()
   }
@@ -53,8 +53,8 @@ scatterplot <- function (dat, x, y, group = NULL,PCC=F,adj=NULL, size.points=5, 
     lab <- paste(lab,collapse = "\n")
     lab <- paste0(paste0("Totol rho = ", round(s0$estimate, 3), "; p = ",formatC(s0$p.value, digits = 2)),"\n",lab)
     p <- ggplot(dat, aes_string(x, y, color = group)) +
-      geom_point(size = size.points, alpha = alpha.points, ...) +
-      geom_smooth(method = "lm",se = F,size=size.smooth, ...) +
+      geom_point(size = size.points, alpha = alpha.points) +
+      geom_smooth(method = "lm",se = F,size=size.smooth) +
       geom_smooth(data = dat, method = "lm",se = F, aes_string(x, y), color = "black") +
       annotate("text", x = -Inf, y = Inf, vjust = 1.2, hjust = 0, label = lab,size = size.lab) +
       theme_bw()

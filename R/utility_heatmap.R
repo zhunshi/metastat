@@ -18,7 +18,7 @@ pheatmap.scc <- function (scc,maxRange=TRUE,ReAdjPvalLowerTri=FALSE,trans=FALSE,
   scc.c <- scc[, id - 2, drop = F]
   scc.p <- scc[, id - 1, drop = F]
   scc.f <- scc[, id, drop = F]
-  colnames(scc.c) <- colnames(scc.f) <- colnames(scc.p) <- gsub("[- ]rho", "", colnames(scc.c))
+  colnames(scc.c) <- colnames(scc.f) <- colnames(scc.p) <- gsub("[\\. ]rho", "", colnames(scc.c))
   # if re-adjusted pvalues in lower-triangles
   if(ReAdjPvalLowerTri){
     p <- scc.p[lower.tri(scc.p)]
