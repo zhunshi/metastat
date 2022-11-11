@@ -12,7 +12,7 @@ scatterplot(
   group = NULL,
   PCC = F,
   adj = NULL,
-  size.points = 5,
+  size.points = 1,
   alpha.points = 0.5,
   size.smooth = 1,
   size.lab = 3
