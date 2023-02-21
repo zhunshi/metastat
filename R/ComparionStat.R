@@ -166,36 +166,41 @@ wilcox.customized <- function(dat,grp,type="phenotype"){
 #' @return dataframe
 #'
 #' @export
-wilcox.Paired <- function(dat,grp,paired,group){
+wilcox.Paired <- function (dat, grp, paired, group)
+{
   grp <- na.omit(grp)
-  inte <- intersect(rownames(dat),rownames(grp))
-  grp <- grp[inte,,drop=F]
-  dat <- dat[inte,,drop=F]
-
-  out.cn <- paste(rep(c("median","mean","SD","mean_rank","N"),rep(2,5)),
-                  rep(levels(factor(grp[,group])),5),sep = ".")
-  out.cn <- c("pvalue","FDR",out.cn,"Enrichment.Direction")
-  out <- matrix(NA,ncol(dat),length(out.cn))
+  inte <- intersect(rownames(dat), rownames(grp))
+  grp <- grp[inte, , drop = F]
+  dat <- dat[inte, , drop = F]
+  out.cn <- paste(rep(c("median", "mean", "SD", "mean_rank","N"), rep(2, 5)), rep(levels(factor(grp[, group])), 5), sep = ".")
+  out.cn <- c("pvalue", "FDR","Effectsize", out.cn, "Enrichment.Direction")
+  out <- matrix(NA, ncol(dat), length(out.cn))
   out <- as.data.frame(out)
   colnames(out) <- out.cn
   rownames(out) <- colnames(dat)
-
-  for(i in 1:nrow(out)){
-    tmp <- cbind(dat[,i,drop=F],grp)
-    tmp2 <- tmp %>% spread(get(group),get(colnames(dat)[i]))
+  colnames(dat) <- make.names(colnames(dat))
+  for (i in 1:nrow(out)) {
+    print(i)
+    tmp <- cbind(dat[, i, drop = F], grp)
+    tmp2 <- tmp %>% spread(get(group), get(colnames(dat)[i]))
     tmp2 <- na.omit(tmp2)
-    out[i,1] <- wilcox.test(tmp2[,2],tmp2[,3],paired = T)$p.value
-    out[i,3:4] <- c(median(tmp2[,2],na.rm = T),median(tmp2[,3],na.rm=T))
-    out[i,5:6] <- c(mean(tmp2[,2],na.rm = T),mean(tmp2[,3],na.rm=T))
-    out[i,7:8] <- c(sd(tmp2[,2],na.rm = T),sd(tmp2[,3],na.rm=T))
-    rk <- rank(c(tmp2[,2],tmp2[,3]))
-    out[i,9:10] <- c(mean(rk[1:nrow(tmp2)]),mean(rk[(nrow(tmp2)+1):(nrow(tmp2)*2)]))
-    out[i,11:12] <- c(sum(tmp2[,2]>0),sum(tmp2[,3]>0))
+    out[i, 1] <- wilcox.test(tmp2[, 2], tmp2[, 3], paired = T)$p.value
+    tmp <- tmp[order(tmp$Stage),]
+    tmp <- tmp[order(tmp$PatientID),]
+    if(is.na(out[i,1])){next}
+    f <- as.formula(paste0(colnames(dat)[i],"~",group))
+    out[i, 3] <- rstatix::wilcox_effsize(f,data=tmp,paired=T)$effsize
+    out[i, 4:5] <- c(median(tmp2[, 2], na.rm = T), median(tmp2[,  3], na.rm = T))
+    out[i, 6:7] <- c(mean(tmp2[, 2], na.rm = T), mean(tmp2[, 3], na.rm = T))
+    out[i, 8:9] <- c(sd(tmp2[, 2], na.rm = T), sd(tmp2[,3], na.rm = T))
+    rk <- rank(c(tmp2[, 2], tmp2[, 3]))
+    out[i, 10:11] <- c(mean(rk[1:nrow(tmp2)]), mean(rk[(nrow(tmp2) +1):(nrow(tmp2) * 2)]))
+    out[i, 12:13] <- c(sum(tmp2[, 2] > 0), sum(tmp2[, 3] > 0))
+    out[i,3] <- ifelse(out[i,10]>out[i,11],out[i,3],-out[i,3])
   }
-  out$FDR <- p.adjust(out$pvalue,method = "BH")
-
-  l <- levels(factor(grp[,group]))
-  out$Enrichment.Direction <- ifelse(out[,9]>out[,10],l[1],l[2])
-  out$Enrichment.Direction[out$FDR>=0.05 | is.na(out$FDR)] <- "NONE"
+  out$FDR <- p.adjust(out$pvalue, method = "BH")
+  l <- levels(factor(grp[, group]))
+  out$Enrichment.Direction <- ifelse(out[, 10] > out[, 11], l[1], l[2])
+  out$Enrichment.Direction[out$FDR >= 0.05 | is.na(out$FDR)] <- "NS"
   return(out)
 }
